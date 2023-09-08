@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.jetbrains.compose)
     alias(libs.plugins.kobweb.application)
+    alias(libs.plugins.serialization.plugin)
     // alias(libs.plugins.kobwebx.markdown)
 }
 
@@ -25,6 +26,8 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 implementation(compose.runtime)
+                implementation(libs.kotlinx.serialization)
+//                implementation(project(":shared"))
             }
         }
 
@@ -34,12 +37,15 @@ kotlin {
                 implementation(libs.kobweb.core)
                 implementation(libs.kobweb.silk.core)
                 implementation(libs.kobweb.silk.icons.fa)
+                implementation(libs.kotlinx.serialization)
                 // implementation(libs.kobwebx.markdown)
             }
         }
         val jvmMain by getting {
             dependencies {
                 implementation(libs.kobweb.api)
+                implementation(libs.kmongo.database)
+                implementation(libs.kotlinx.serialization)
             }
         }
     }
