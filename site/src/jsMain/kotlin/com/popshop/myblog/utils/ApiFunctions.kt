@@ -1,4 +1,7 @@
 package com.popshop.myblog.utils
+import com.popshop.myblog.models.ApiResponse
+import com.popshop.myblog.models.Constants.POST_ID_PARAM
+import com.popshop.myblog.models.Post
 import com.popshop.myblog.models.RandomJoke
 import com.popshop.myblog.models.User
 import com.popshop.myblog.models.UserWithoutPassword
@@ -69,6 +72,41 @@ suspend fun fetchRandomJoke(onComplete: (RandomJoke) -> Unit) {
             onComplete(RandomJoke(id = -1, joke = e.message.toString()))
             println(e.message)
         }
+    }
+}
+suspend fun fetchSelectedPost(id: String): ApiResponse {
+    return try {
+        val result = window.api.tryGet(
+            apiPath = "readselectedpost?${POST_ID_PARAM}=$id"
+        )?.decodeToString()
+        result?.parseData() ?: ApiResponse.Error(message = "Result is null")
+    } catch (e: Exception) {
+        println(e)
+        ApiResponse.Error(message = e.message.toString())
+    }
+}
+
+suspend fun updatePost(post: Post): Boolean {
+    return try {
+        window.api.tryPost(
+            apiPath = "updatepost",
+            body = Json.encodeToString(post).encodeToByteArray()
+        )?.decodeToString().toBoolean()
+    } catch (e: Exception) {
+        println(e.message)
+        false
+    }
+}
+
+suspend fun addPost(post: Post): Boolean {
+    return try {
+        window.api.tryPost(
+            apiPath = "addpost",
+            body = Json.encodeToString(post).encodeToByteArray()
+        )?.decodeToString().toBoolean()
+    } catch (e: Exception) {
+        println(e.message)
+        false
     }
 }
 

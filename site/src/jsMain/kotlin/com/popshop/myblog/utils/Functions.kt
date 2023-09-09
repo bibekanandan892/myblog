@@ -6,6 +6,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import com.popshop.myblog.models.ControlStyle
+import com.popshop.myblog.models.EditorControl
 import com.popshop.myblog.navigation.Screen
 import com.varabyte.kobweb.compose.ui.Modifier
 import com.varabyte.kobweb.compose.ui.graphics.Colors
@@ -76,82 +78,82 @@ fun getSelectedText(): String? {
         getEditor().value.substring(range)
     } else null
 }
-//
-//fun applyStyle(controlStyle: ControlStyle)
-//{
-//    val selectedText = getSelectedText()
-//    val selectedIntRange = getSelectedIntRange()
-//    if (selectedIntRange != null && selectedText != null) {
-//        getEditor().value = getEditor().value.replaceRange(
-//            range = selectedIntRange,
-//            replacement = controlStyle.style
-//        )
-//        document.getElementById(Id.editorPreview)?.innerHTML = getEditor().value
-//    }
-//}
-//
-//fun applyControlStyle(
-//    editorControl: EditorControl,
-//    onLinkClick: () -> Unit,
-//    onImageClick: () -> Unit
-//) {
-//    when (editorControl) {
-//        EditorControl.Bold -> {
-//            applyStyle(
-//                ControlStyle.Bold(
-//                    selectedText = getSelectedText()
-//                )
-//            )
-//        }
-//
-//        EditorControl.Italic -> {
-//            applyStyle(
-//                ControlStyle.Italic(
-//                    selectedText = getSelectedText()
-//                )
-//            )
-//        }
-//
-//        EditorControl.Link -> {
-//            onLinkClick()
-//        }
-//
-//        EditorControl.Title -> {
-//            applyStyle(
-//                ControlStyle.Title(
-//                    selectedText = getSelectedText()
-//                )
-//            )
-//        }
-//
-//        EditorControl.Subtitle -> {
-//            applyStyle(
-//                ControlStyle.Subtitle(
-//                    selectedText = getSelectedText()
-//                )
-//            )
-//        }
-//
-//        EditorControl.Quote -> {
-//            applyStyle(
-//                ControlStyle.Quote(
-//                    selectedText = getSelectedText()
-//                )
-//            )
-//        }
-//
-//        EditorControl.Code -> {
-//            applyStyle(
-//                ControlStyle.Code(
-//                    selectedText = getSelectedText()
-//                )
-//            )
-//        }
-//        EditorControl.Image -> {
-//            onImageClick()
-//        }
-//    }
-//}
+
+fun applyStyle(controlStyle: ControlStyle)
+{
+    val selectedText = getSelectedText()
+    val selectedIntRange = getSelectedIntRange()
+    if (selectedIntRange != null && selectedText != null) {
+        getEditor().value = getEditor().value.replaceRange(
+            range = selectedIntRange,
+            replacement = controlStyle.style
+        )
+        document.getElementById(Id.editorPreview)?.innerHTML = getEditor().value
+    }
+}
+
+fun applyControlStyle(
+    editorControl: EditorControl,
+    onLinkClick: () -> Unit,
+    onImageClick: () -> Unit
+) {
+    when (editorControl) {
+        EditorControl.Bold -> {
+            applyStyle(
+                ControlStyle.Bold(
+                    selectedText = getSelectedText()
+                )
+            )
+        }
+
+        EditorControl.Italic -> {
+            applyStyle(
+                ControlStyle.Italic(
+                    selectedText = getSelectedText()
+                )
+            )
+        }
+
+        EditorControl.Link -> {
+            onLinkClick()
+        }
+
+        EditorControl.Title -> {
+            applyStyle(
+                ControlStyle.Title(
+                    selectedText = getSelectedText()
+                )
+            )
+        }
+
+        EditorControl.Subtitle -> {
+            applyStyle(
+                ControlStyle.Subtitle(
+                    selectedText = getSelectedText()
+                )
+            )
+        }
+
+        EditorControl.Quote -> {
+            applyStyle(
+                ControlStyle.Quote(
+                    selectedText = getSelectedText()
+                )
+            )
+        }
+
+        EditorControl.Code -> {
+            applyStyle(
+                ControlStyle.Code(
+                    selectedText = getSelectedText()
+                )
+            )
+        }
+        EditorControl.Image -> {
+            onImageClick()
+        }
+    }
+}
 //
 //fun Long.parseDateString() = Date(this).toLocaleDateString()
 //

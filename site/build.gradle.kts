@@ -13,6 +13,7 @@ plugins {
 group = "com.popshop.myblog"
 version = "1.0-SNAPSHOT"
 
+
 kobweb {
     app {
         index {

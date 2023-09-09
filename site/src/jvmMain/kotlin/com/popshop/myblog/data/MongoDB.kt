@@ -1,5 +1,6 @@
 package com.popshop.myblog.data
 
+import com.popshop.myblog.models.Post
 import com.popshop.myblog.models.User
 import com.popshop.myblog.util.Constants.DATABASE_NAME
 import com.varabyte.kobweb.api.data.add
@@ -25,8 +26,13 @@ class MongoDB(private val context: InitApiContext) : MongoRepository {
     private val client = KMongo.createClient()
     private val database = client.getDatabase(DATABASE_NAME)
     private val userCollection = database.getCollection<User>()
-//    private val postCollection = database.getCollection<Post>()
+
+    private val postCollection = database.getCollection<Post>()
 //    private val newsletterCollection = database.getCollection<Newsletter>()
+
+    override suspend fun addPost(post: Post): Boolean {
+        return postCollection.insertOne(post).awaitFirst().wasAcknowledged()
+    }
 
     override suspend fun checkUserExistence(user: User): User? {
         return try {
