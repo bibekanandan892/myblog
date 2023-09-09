@@ -1,4 +1,6 @@
 import com.varabyte.kobweb.gradle.application.util.configAsKobwebApplication
+import kotlinx.html.link
+import kotlinx.html.script
 
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
@@ -14,7 +16,31 @@ version = "1.0-SNAPSHOT"
 kobweb {
     app {
         index {
-            description.set("Powered by Kobweb")
+            description.set("Powered by Bibekananda")
+            head.add {
+                script {
+                    src = "/highlight.min.js"
+                }
+                link {
+                    rel = "stylesheet"
+                    href = "/github-dark.css"
+                }
+                script {
+                    src = "https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
+                }
+                link {
+                    rel = "stylesheet"
+                    href = "https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css"
+                }
+
+                link(rel = "preconnect", href = "https://fonts.googleapis.com")
+                link(rel = "preconnect", href = "https://fonts.gstatic.com") { attributes["crossorigin"] = "" }
+                link(
+                    href = "https://fonts.googleapis.com/css2?family=Roboto&display=swap",
+                    rel = "stylesheet"
+                )
+            }
+
         }
     }
 }
@@ -22,6 +48,7 @@ kobweb {
 kotlin {
     configAsKobwebApplication("myblog", includeServer = true)
 
+    @Suppress("UNUSED_VARIABLE") // Suppress spurious warnings about sourceset variables not being used
     sourceSets {
         val commonMain by getting {
             dependencies {

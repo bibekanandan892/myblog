@@ -1,5 +1,6 @@
 package com.popshop.myblog.style
 
+import com.popshop.myblog.models.Theme
 import com.varabyte.kobweb.compose.css.CSSTransition
 import com.varabyte.kobweb.compose.ui.Modifier
 import com.varabyte.kobweb.compose.ui.graphics.Colors

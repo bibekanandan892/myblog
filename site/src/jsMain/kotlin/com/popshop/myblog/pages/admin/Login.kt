@@ -61,7 +61,7 @@ fun LoginPage() {
     val scope = rememberCoroutineScope()
     val context = rememberPageContext()
     var errorText by remember{
-        mutableStateOf("")
+        mutableStateOf(" ")
     }
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         Column(
@@ -115,7 +115,6 @@ fun LoginPage() {
                     .fontFamily(FONT_FAMILY)
                     .fontWeight(FontWeight.Medium)
                     .fontSize(14.px)
-
                     .border(style = LineStyle.None, color = Colors.Transparent, width = 0.px)
                     .outline(style = LineStyle.None, color = Colors.Transparent, width = 0.px)
                     .cursor(Cursor.Pointer)
@@ -134,7 +133,7 @@ fun LoginPage() {
                                 )
                                 if (user != null) {
                                     rememberLoggedIn(remember = true, user = user)
-                                    context.router.navigateTo(Screen.AdminHome.route)
+                                    context.router.navigateTo("/admin")
                                 } else {
                                     errorText = "The user doesn't exist."
                                     delay(3000)
@@ -150,7 +149,7 @@ fun LoginPage() {
             ) {
                 SpanText(text = "Sign In",Modifier.fontFamily(FONT_FAMILY))
             }
-            SpanText(text = "", modifier = Modifier.margin(top = 24.px).width(350.px).color(color = Colors.Red))
+            SpanText(text = errorText, modifier = Modifier.fontFamily(FONT_FAMILY).margin(top = 24.px).color(color = Colors.Red).align(alignment = Alignment.CenterHorizontally))
 
         }
     }
