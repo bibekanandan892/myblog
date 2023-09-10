@@ -8,4 +8,6 @@ object Constants {
     const val SKIP_PARAM = "skip"
     const val AUTHOR_PARAM = "author"
     const val UPDATED_PARAM = "updated"
+    const val SHOW_SECTIONS_PARAM = "showSections"
+
 }

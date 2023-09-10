@@ -1,10 +1,13 @@
 package com.popshop.myblog.utils
 import com.popshop.myblog.models.ApiListResponse
 import com.popshop.myblog.models.ApiResponse
+import com.popshop.myblog.models.Category
 import com.popshop.myblog.models.Constants.AUTHOR_PARAM
+import com.popshop.myblog.models.Constants.CATEGORY_PARAM
 import com.popshop.myblog.models.Constants.POST_ID_PARAM
 import com.popshop.myblog.models.Constants.QUERY_PARAM
 import com.popshop.myblog.models.Constants.SKIP_PARAM
+import com.popshop.myblog.models.Newsletter
 import com.popshop.myblog.models.Post
 import com.popshop.myblog.models.RandomJoke
 import com.popshop.myblog.models.User
@@ -116,15 +119,22 @@ suspend fun addPost(post: Post): Boolean {
 suspend fun fetchMyPosts(
     skip: Int,
     onSuccess: (ApiListResponse) -> Unit,
-    onError: (Exception) -> Unit
+    onError: (Exception) -> Unit,
+    onLoading: (Boolean)-> Unit = {}
 ) {
     try {
+        onLoading.invoke(true)
         val result = window.api.tryGet(
             apiPath = "readmyposts?${SKIP_PARAM}=$skip&${AUTHOR_PARAM}=${localStorage["username"]}"
         )?.decodeToString()
+        onLoading.invoke(false)
+
         onSuccess(result.parseData())
+
     } catch (e: Exception) {
         println(e)
+        onLoading.invoke(false)
+
         onError(e)
     }
 }
@@ -133,14 +143,41 @@ suspend fun searchPostsByTitle(
     query: String,
     skip: Int,
     onSuccess: (ApiListResponse) -> Unit,
-    onError: (Exception) -> Unit
+    onError: (Exception) -> Unit,
+    onLoading : (Boolean) -> Unit = {}
 ) {
     try {
+        onLoading.invoke(true)
         val result = window.api.tryGet(
             apiPath = "searchposts?${QUERY_PARAM}=$query&${SKIP_PARAM}=$skip"
         )?.decodeToString()
+        onLoading.invoke(false)
+
         onSuccess(result.parseData())
     } catch (e: Exception) {
+        println(e.message)
+        onLoading.invoke(false)
+        onError(e)
+    }
+}
+suspend fun searchPostsByCategory(
+    category: Category,
+    skip: Int,
+    onSuccess: (ApiListResponse) -> Unit,
+    onError: (Exception) -> Unit,
+    onLoading: (Boolean) -> Unit
+) {
+    try {
+        onLoading.invoke(true)
+        val result = window.api.tryGet(
+            apiPath = "searchpostsbycategory?${CATEGORY_PARAM}=${category.name}&${SKIP_PARAM}=$skip"
+        )?.decodeToString()
+        onLoading.invoke(false)
+
+        onSuccess(result.parseData())
+    } catch (e: Exception) {
+        onLoading.invoke(false)
+
         println(e.message)
         onError(e)
     }
@@ -156,6 +193,64 @@ suspend fun deleteSelectedPosts(ids: List<String>): Boolean {
         println(e.message)
         false
     }
+}
+suspend fun fetchMainPosts(
+    onSuccess: (ApiListResponse) -> Unit,
+    onError: (Exception) -> Unit
+) {
+    try {
+        val result = window.api.tryGet(apiPath = "readmainposts")?.decodeToString()
+        onSuccess(result.parseData())
+    } catch (e: Exception) {
+        println(e)
+        onError(e)
+    }
+}
+suspend fun fetchLatestPosts(
+    skip: Int,
+    onSuccess: (ApiListResponse) -> Unit,
+    onError: (Exception) -> Unit
+) {
+    try {
+        val result =
+            window.api.tryGet(apiPath = "readlatestposts?${SKIP_PARAM}=$skip")?.decodeToString()
+        onSuccess(result.parseData())
+    } catch (e: Exception) {
+        println(e)
+        onError(e)
+    }
+}
+suspend fun fetchSponsoredPosts(
+    onSuccess: (ApiListResponse) -> Unit,
+    onError: (Exception) -> Unit
+) {
+    try {
+        val result = window.api.tryGet(apiPath = "readsponsoredposts")?.decodeToString()
+        onSuccess(result.parseData())
+    } catch (e: Exception) {
+        println(e)
+        onError(e)
+    }
+}
+suspend fun fetchPopularPosts(
+    skip: Int,
+    onSuccess: (ApiListResponse) -> Unit,
+    onError: (Exception) -> Unit
+) {
+    try {
+        val result =
+            window.api.tryGet(apiPath = "readpopularposts?${SKIP_PARAM}=$skip")?.decodeToString()
+        onSuccess(result.parseData())
+    } catch (e: Exception) {
+        println(e)
+        onError(e)
+    }
+}
+suspend fun subscribeToNewsletter(newsletter: Newsletter): String {
+    return window.api.tryPost(
+        apiPath = "subscribe",
+        body = Json.encodeToString(newsletter).encodeToByteArray()
+    )?.decodeToString().toString().replace("\"", "")
 }
 
 inline fun <reified T> String?.parseData(): T {

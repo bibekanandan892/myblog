@@ -3,7 +3,9 @@ package com.popshop.myblog.api
 import com.popshop.myblog.data.MongoDB
 import com.popshop.myblog.models.ApiListResponse
 import com.popshop.myblog.models.ApiResponse
+import com.popshop.myblog.models.Category
 import com.popshop.myblog.models.Constants.AUTHOR_PARAM
+import com.popshop.myblog.models.Constants.CATEGORY_PARAM
 import com.popshop.myblog.models.Constants.POST_ID_PARAM
 import com.popshop.myblog.models.Constants.QUERY_PARAM
 import com.popshop.myblog.models.Constants.SKIP_PARAM
@@ -101,6 +103,63 @@ suspend fun updatePost(context: ApiContext) {
         context.res.setBody(e.message)
     }
 }
+
+@Api(routeOverride = "readmainposts")
+suspend fun readMainPosts(context: ApiContext) {
+    try {
+        val mainPosts = context.data.getValue<MongoDB>().readMainPosts()
+        context.res.setBody(ApiListResponse.Success(data = mainPosts))
+    } catch (e: Exception) {
+        context.res.setBody(ApiListResponse.Error(message = e.message.toString()))
+    }
+}
+@Api(routeOverride = "readsponsoredposts")
+suspend fun readSponsoredPosts(context: ApiContext) {
+    try {
+        val sponsoredPosts = context.data.getValue<MongoDB>().readSponsoredPosts()
+        context.res.setBody(ApiListResponse.Success(data = sponsoredPosts))
+    } catch (e: Exception) {
+        context.res.setBody(ApiListResponse.Error(message = e.message.toString()))
+    }
+}
+@Api(routeOverride = "readpopularposts")
+suspend fun readPopularPosts(context: ApiContext) {
+    try {
+        val skip = context.req.params[SKIP_PARAM]?.toInt() ?: 0
+        val popularPosts = context.data.getValue<MongoDB>().readPopularPosts(skip = skip)
+        context.res.setBody(ApiListResponse.Success(data = popularPosts))
+    } catch (e: Exception) {
+        context.res.setBody(ApiListResponse.Error(message = e.message.toString()))
+    }
+}
+
+@Api(routeOverride = "searchpostsbycategory")
+suspend fun searchPostsByCategory(context: ApiContext) {
+    try {
+        val category =
+            Category.valueOf(context.req.params[CATEGORY_PARAM] ?: Category.Programming.name)
+        val skip = context.req.params[SKIP_PARAM]?.toInt() ?: 0
+        val posts = context.data.getValue<MongoDB>().searchPostsByCategory(
+            category = category,
+            skip = skip
+        )
+        context.res.setBody(ApiListResponse.Success(data = posts))
+    } catch (e: Exception) {
+        context.res.setBody(ApiListResponse.Error(message = e.message.toString()))
+    }
+}
+
+@Api(routeOverride = "readlatestposts")
+suspend fun readLatestPosts(context: ApiContext) {
+    try {
+        val skip = context.req.params[SKIP_PARAM]?.toInt() ?: 0
+        val latestPosts = context.data.getValue<MongoDB>().readLatestPosts(skip = skip)
+        context.res.setBody(ApiListResponse.Success(data = latestPosts))
+    } catch (e: Exception) {
+        context.res.setBody(ApiListResponse.Error(message = e.message.toString()))
+    }
+}
+
 
 inline fun <reified T> Request.getBody(): T? {
     return body?.decodeToString()?.let { return Json.decodeFromString(it) }

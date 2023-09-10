@@ -10,6 +10,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import com.popshop.myblog.components.AdminPageLayout
+import com.popshop.myblog.components.LoadingIndicator
 import com.popshop.myblog.components.PostsView
 import com.popshop.myblog.components.SearchBar
 import com.popshop.myblog.models.ApiListResponse
@@ -88,6 +89,7 @@ fun MyPostsScreen() {
     var showMoreVisibility by remember { mutableStateOf(false) }
     var selectableMode by remember { mutableStateOf(false) }
     var switchText by remember { mutableStateOf("Select") }
+    var isPostsLoading by remember { mutableStateOf(false) }
 
     val hasParams = remember(key1 = context.route) { context.route.params.containsKey(QUERY_PARAM) }
     val query = remember(key1 = context.route) { context.route.params[QUERY_PARAM] ?: "" }
@@ -109,6 +111,8 @@ fun MyPostsScreen() {
                 },
                 onError = {
                     println(it)
+                }, onLoading = {
+                    isPostsLoading = it
                 }
             )
         } else {
@@ -124,6 +128,9 @@ fun MyPostsScreen() {
                 },
                 onError = {
                     println(it)
+                },
+                onLoading = {
+                    isPostsLoading = it
                 }
             )
         }
@@ -228,63 +235,68 @@ fun MyPostsScreen() {
                     SpanText(text = "Delete")
                 }
             }
-            PostsView(
-                breakpoint = breakpoint,
-                posts = myPosts,
-                selectableMode = selectableMode,
-                onSelect = {
-                    selectedPosts.add(it)
-                    switchText = parseSwitchText(selectedPosts.toList())
-                },
-                onDeselect = {
-                    selectedPosts.remove(it)
-                    switchText = parseSwitchText(selectedPosts.toList())
-                },
-                showMoreVisibility = showMoreVisibility,
-                onShowMore = {
-                    scope.launch {
-                        if (hasParams) {
-                            searchPostsByTitle(
-                                query = query,
-                                skip = postsToSkip,
-                                onSuccess = {
-                                    if (it is ApiListResponse.Success) {
-                                        if (it.data.isNotEmpty()) {
-                                            myPosts.addAll(it.data)
-                                            postsToSkip += POSTS_PER_PAGE
-                                            showMoreVisibility = it.data.size >= POSTS_PER_PAGE
-                                        } else {
-                                            showMoreVisibility = false
+            if(isPostsLoading){
+                LoadingIndicator()
+            }else{
+                PostsView(
+                    breakpoint = breakpoint,
+                    posts = myPosts,
+                    selectableMode = selectableMode,
+                    onSelect = {
+                        selectedPosts.add(it)
+                        switchText = parseSwitchText(selectedPosts.toList())
+                    },
+                    onDeselect = {
+                        selectedPosts.remove(it)
+                        switchText = parseSwitchText(selectedPosts.toList())
+                    },
+                    showMoreVisibility = showMoreVisibility,
+                    onShowMore = {
+                        scope.launch {
+                            if (hasParams) {
+                                searchPostsByTitle(
+                                    query = query,
+                                    skip = postsToSkip,
+                                    onSuccess = {
+                                        if (it is ApiListResponse.Success) {
+                                            if (it.data.isNotEmpty()) {
+                                                myPosts.addAll(it.data)
+                                                postsToSkip += POSTS_PER_PAGE
+                                                showMoreVisibility = it.data.size >= POSTS_PER_PAGE
+                                            } else {
+                                                showMoreVisibility = false
+                                            }
                                         }
+                                    },
+                                    onError = {
+                                        println(it)
                                     }
-                                },
-                                onError = {
-                                    println(it)
-                                }
-                            )
-                        } else {
-                            fetchMyPosts(
-                                skip = postsToSkip,
-                                onSuccess = {
-                                    if (it is ApiListResponse.Success) {
-                                        if (it.data.isNotEmpty()) {
-                                            myPosts.addAll(it.data)
-                                            postsToSkip += POSTS_PER_PAGE
-                                            showMoreVisibility = it.data.size >= POSTS_PER_PAGE
-                                        } else {
-                                            showMoreVisibility = false
+                                )
+                            } else {
+                                fetchMyPosts(
+                                    skip = postsToSkip,
+                                    onSuccess = {
+                                        if (it is ApiListResponse.Success) {
+                                            if (it.data.isNotEmpty()) {
+                                                myPosts.addAll(it.data)
+                                                postsToSkip += POSTS_PER_PAGE
+                                                showMoreVisibility = it.data.size >= POSTS_PER_PAGE
+                                            } else {
+                                                showMoreVisibility = false
+                                            }
                                         }
+                                    },
+                                    onError = {
+                                        println(it)
                                     }
-                                },
-                                onError = {
-                                    println(it)
-                                }
-                            )
+                                )
+                            }
                         }
-                    }
-                },
-                onClick = { context.router.navigateTo(Screen.AdminCreate.passPostId(id = it)) }
-            )
+                    },
+                    onClick = { context.router.navigateTo(Screen.AdminCreate.passPostId(id = it)) }
+                )
+            }
+
         }
     }
 }

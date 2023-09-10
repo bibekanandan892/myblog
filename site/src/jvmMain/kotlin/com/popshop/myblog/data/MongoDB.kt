@@ -1,10 +1,13 @@
 package com.popshop.myblog.data
 
+import com.popshop.myblog.models.Category
 import com.popshop.myblog.models.Constants.POSTS_PER_PAGE
+import com.popshop.myblog.models.Newsletter
 import com.popshop.myblog.models.Post
 import com.popshop.myblog.models.PostWithoutDetails
 import com.popshop.myblog.models.User
 import com.popshop.myblog.util.Constants.DATABASE_NAME
+import com.popshop.myblog.util.Constants.MAIN_POSTS_LIMIT
 import com.varabyte.kobweb.api.data.add
 import com.varabyte.kobweb.api.init.InitApi
 import com.varabyte.kobweb.api.init.InitApiContext
@@ -31,12 +34,12 @@ fun initMongoDB(context: InitApiContext) {
 }
 
 class MongoDB(private val context: InitApiContext) : MongoRepository {
-    private val client = KMongo.createClient()
+    private val client = KMongo.createClient(System.getenv("MONGODB_URI"))
     private val database = client.getDatabase(DATABASE_NAME)
     private val userCollection = database.getCollection<User>()
 
     private val postCollection = database.getCollection<Post>()
-//    private val newsletterCollection = database.getCollection<Newsletter>()
+    private val newsletterCollection = database.getCollection<Newsletter>()
 
     override suspend fun addPost(post: Post): Boolean {
         return postCollection.insertOne(post).awaitFirst().wasAcknowledged()
@@ -74,6 +77,58 @@ class MongoDB(private val context: InitApiContext) : MongoRepository {
             .awaitLast()
             .wasAcknowledged()
     }
+    override suspend fun readMainPosts(): List<PostWithoutDetails> {
+        return postCollection
+            .withDocumentClass(PostWithoutDetails::class.java)
+            .find(PostWithoutDetails::main eq true)
+            .sort(descending(PostWithoutDetails::date))
+            .limit(MAIN_POSTS_LIMIT)
+            .toList()
+    }
+    override suspend fun readLatestPosts(skip: Int): List<PostWithoutDetails> {
+        return postCollection
+            .withDocumentClass(PostWithoutDetails::class.java)
+            .find(
+                and(
+                    PostWithoutDetails::popular eq false,
+                    PostWithoutDetails::main eq false,
+                    PostWithoutDetails::sponsored eq false
+                )
+            )
+            .sort(descending(PostWithoutDetails::date))
+            .skip(skip)
+            .limit(POSTS_PER_PAGE)
+            .toList()
+    }
+    override suspend fun readSponsoredPosts(): List<PostWithoutDetails> {
+        return postCollection
+            .withDocumentClass(PostWithoutDetails::class.java)
+            .find(PostWithoutDetails::sponsored eq true)
+            .sort(descending(PostWithoutDetails::date))
+            .limit(2)
+            .toList()
+    }
+    override suspend fun readPopularPosts(skip: Int): List<PostWithoutDetails> {
+        return postCollection
+            .withDocumentClass(PostWithoutDetails::class.java)
+            .find(PostWithoutDetails::popular eq true)
+            .sort(descending(PostWithoutDetails::date))
+            .skip(skip)
+            .limit(POSTS_PER_PAGE)
+            .toList()
+    }
+    override suspend fun searchPostsByCategory(
+        category: Category,
+        skip: Int
+    ): List<PostWithoutDetails> {
+        return postCollection
+            .withDocumentClass(PostWithoutDetails::class.java)
+            .find(PostWithoutDetails::category eq category)
+            .sort(descending(PostWithoutDetails::date))
+            .skip(skip)
+            .limit(POSTS_PER_PAGE)
+            .toList()
+    }
     override suspend fun readSelectedPost(id: String): Post {
         return postCollection.find(Post::id eq id).toList().first()
     }
@@ -107,6 +162,21 @@ class MongoDB(private val context: InitApiContext) : MongoRepository {
         } catch (e: Exception) {
             context.logger.error(e.message.toString())
             false
+        }
+    }
+    override suspend fun subscribe(newsletter: Newsletter): String {
+        val result = newsletterCollection
+            .find(Newsletter::email eq newsletter.email)
+            .toList()
+        return if (result.isNotEmpty()) {
+            "You're already subscribed."
+        } else {
+            val newEmail = newsletterCollection
+                .insertOne(newsletter)
+                .awaitFirst()
+                .wasAcknowledged()
+            if (newEmail) "Successfully Subscribed!"
+            else "Something went wrong. Please try again later."
         }
     }
 }

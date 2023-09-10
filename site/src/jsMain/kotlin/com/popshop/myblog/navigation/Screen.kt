@@ -1,5 +1,7 @@
 package com.popshop.myblog.navigation
 
+import com.popshop.myblog.models.Category
+import com.popshop.myblog.models.Constants.CATEGORY_PARAM
 import com.popshop.myblog.models.Constants.POST_ID_PARAM
 import com.popshop.myblog.models.Constants.QUERY_PARAM
 import com.popshop.myblog.models.Constants.UPDATED_PARAM
@@ -21,12 +23,12 @@ sealed class Screen(val route: String) {
     }
 
     object HomePage : Screen(route = "/")
-//    object SearchPage : Screen(route = "/search/query") {
-//        fun searchByCategory(category: Category) =
-//            "/search/query?${CATEGORY_PARAM}=${category.name}"
-//
-//        fun searchByTitle(query: String) = "/search/query?${QUERY_PARAM}=$query"
-//    }
+    object SearchPage : Screen(route = "/search/query") {
+        fun searchByCategory(category: Category) =
+            "/search/query?${CATEGORY_PARAM}=${category.name}"
+
+        fun searchByTitle(query: String) = "/search/query?${QUERY_PARAM}=$query"
+    }
 
     object PostPage : Screen(route = "/posts/post") {
         fun getPost(id: String) = "/posts/post?${POST_ID_PARAM}=$id"

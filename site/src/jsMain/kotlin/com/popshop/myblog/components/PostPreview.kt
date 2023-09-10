@@ -90,7 +90,7 @@ fun PostPreview(
                 )
                 .margin(bottom = 24.px)
                 .padding(all = if (selectableMode) 10.px else 0.px)
-                .borderRadius(r = 10.px)
+                .borderRadius(r = 0.px)
                 .border(
                     width = if (selectableMode) 4.px else 0.px,
                     style = if (selectableMode) LineStyle.Solid else LineStyle.None,
@@ -165,11 +165,10 @@ fun PostContent(
 ) {
     Image(
         modifier = Modifier
+            .objectFit(ObjectFit.Cover)
             .margin(bottom = if (darkTheme) 20.px else 16.px)
             .height(size = thumbnailHeight)
-            .fillMaxWidth()
-            .borderRadius(topLeft = 10.px, topRight = 10.px)
-            .objectFit(ObjectFit.Cover),
+            .fillMaxWidth(),
         src = post.thumbnail,
         desc = "Post Thumbnail Image"
     )
