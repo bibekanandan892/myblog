@@ -9,6 +9,7 @@ import androidx.compose.runtime.setValue
 import com.popshop.myblog.models.ControlStyle
 import com.popshop.myblog.models.EditorControl
 import com.popshop.myblog.navigation.Screen
+import com.varabyte.kobweb.browser.api
 import com.varabyte.kobweb.compose.ui.Modifier
 import com.varabyte.kobweb.compose.ui.graphics.Colors
 import com.varabyte.kobweb.compose.ui.modifiers.border
@@ -16,11 +17,15 @@ import com.varabyte.kobweb.compose.ui.modifiers.outline
 import com.varabyte.kobweb.core.rememberPageContext
 import kotlinx.browser.document
 import kotlinx.browser.localStorage
+import kotlinx.browser.window
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import org.jetbrains.compose.web.css.LineStyle
 import org.jetbrains.compose.web.css.px
 import org.w3c.dom.HTMLTextAreaElement
 import org.w3c.dom.get
 import org.w3c.dom.set
+import kotlin.js.Date
 
 @Composable
 fun isUserLoggedIn(content: @Composable () -> Unit) {
@@ -154,14 +159,14 @@ fun applyControlStyle(
         }
     }
 }
+
+fun Long.parseDateString() = Date(this).toLocaleDateString()
 //
-//fun Long.parseDateString() = Date(this).toLocaleDateString()
-//
-//fun parseSwitchText(posts: List<String>): String {
-//    return if (posts.size == 1) "1 Post Selected" else "${posts.size} Posts Selected"
-//}
-//
-//fun validateEmail(email: String): Boolean {
-//    val regex = "^[A-Za-z](.*)(@)(.+)(\\.)(.+)"
-//    return regex.toRegex().matches(email)
-//}
+fun parseSwitchText(posts: List<String>): String {
+    return if (posts.size == 1) "1 Post Selected" else "${posts.size} Posts Selected"
+}
+
+fun validateEmail(email: String): Boolean {
+    val regex = "^[A-Za-z](.*)(@)(.+)(\\.)(.+)"
+    return regex.toRegex().matches(email)
+}

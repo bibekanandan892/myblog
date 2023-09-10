@@ -1,6 +1,5 @@
 package com.popshop.myblog.navigation
 
-import com.popshop.myblog.models.Constants.CATEGORY_PARAM
 import com.popshop.myblog.models.Constants.POST_ID_PARAM
 import com.popshop.myblog.models.Constants.QUERY_PARAM
 import com.popshop.myblog.models.Constants.UPDATED_PARAM

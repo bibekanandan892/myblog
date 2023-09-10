@@ -1,16 +1,24 @@
 package com.popshop.myblog.data
 
+import com.popshop.myblog.models.Constants.POSTS_PER_PAGE
 import com.popshop.myblog.models.Post
+import com.popshop.myblog.models.PostWithoutDetails
 import com.popshop.myblog.models.User
 import com.popshop.myblog.util.Constants.DATABASE_NAME
 import com.varabyte.kobweb.api.data.add
 import com.varabyte.kobweb.api.init.InitApi
 import com.varabyte.kobweb.api.init.InitApiContext
 import kotlinx.coroutines.reactive.awaitFirst
+import kotlinx.coroutines.reactive.awaitLast
 import org.litote.kmongo.and
+import org.litote.kmongo.coroutine.toList
+import org.litote.kmongo.descending
 import org.litote.kmongo.eq
+import org.litote.kmongo.`in`
 import org.litote.kmongo.reactivestreams.KMongo
 import org.litote.kmongo.reactivestreams.getCollection
+import org.litote.kmongo.regex
+import org.litote.kmongo.setValue
 
 
 @InitApi
@@ -33,7 +41,52 @@ class MongoDB(private val context: InitApiContext) : MongoRepository {
     override suspend fun addPost(post: Post): Boolean {
         return postCollection.insertOne(post).awaitFirst().wasAcknowledged()
     }
-
+    override suspend fun readMyPosts(skip: Int, author: String): List<PostWithoutDetails> {
+        return postCollection
+            .withDocumentClass(PostWithoutDetails::class.java)
+            .find(PostWithoutDetails::author eq author)
+            .sort(descending(PostWithoutDetails::date))
+            .skip(skip)
+            .limit(POSTS_PER_PAGE)
+            .toList()
+    }
+    override suspend fun deleteSelectedPosts(ids: List<String>): Boolean {
+        return postCollection
+            .deleteMany(Post::id `in` ids)
+            .awaitLast()
+            .wasAcknowledged()
+    }
+    override suspend fun updatePost(post: Post): Boolean {
+        return postCollection
+            .updateOne(
+                Post::id eq post.id,
+                mutableListOf(
+                    setValue(Post::title, post.title),
+                    setValue(Post::subtitle, post.subtitle),
+                    setValue(Post::category, post.category),
+                    setValue(Post::thumbnail, post.thumbnail),
+                    setValue(Post::content, post.content),
+                    setValue(Post::main, post.main),
+                    setValue(Post::popular, post.popular),
+                    setValue(Post::sponsored, post.sponsored)
+                )
+            )
+            .awaitLast()
+            .wasAcknowledged()
+    }
+    override suspend fun readSelectedPost(id: String): Post {
+        return postCollection.find(Post::id eq id).toList().first()
+    }
+    override suspend fun searchPostsByTittle(query: String, skip: Int): List<PostWithoutDetails> {
+        val regexQuery = query.toRegex(RegexOption.IGNORE_CASE)
+        return postCollection
+            .withDocumentClass(PostWithoutDetails::class.java)
+            .find(PostWithoutDetails::title regex regexQuery)
+            .sort(descending(PostWithoutDetails::date))
+            .skip(skip)
+            .limit(POSTS_PER_PAGE)
+            .toList()
+    }
     override suspend fun checkUserExistence(user: User): User? {
         return try {
             userCollection.find(
