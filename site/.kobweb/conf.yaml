@@ -10,5 +10,9 @@ server:
     prod:
       script: "build/dist/js/productionExecutable/myblog.js"
       siteRoot: ".kobweb/site"
-
+  cors:
+    hosts:
+      - name: "blog.bibekananda.com"
+        schemes:
+          - "https"
   port: 8080
