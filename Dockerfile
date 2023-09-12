@@ -4,6 +4,12 @@
 # specified once).
 ARG KOBWEB_APP_ROOT="site"
 
+# Define a build-time argument
+ARG MONGODB_URI=0.0.0.0:27017
+
+# Set an environment variable during the build process
+ENV MONGODB_URI=$MONGODB_URI
+
 FROM eclipse-temurin:17 as java
 
 FROM java as export
