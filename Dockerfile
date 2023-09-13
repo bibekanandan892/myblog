@@ -7,9 +7,6 @@ ARG KOBWEB_APP_ROOT="site"
 # Define a build-time argument
 ARG MONGODB_URI=0.0.0.0:27017
 
-# Set an environment variable during the build process
-ENV MONGODB_URI=$MONGODB_URI
-
 FROM eclipse-temurin:17 as java
 
 FROM java as export
@@ -48,6 +45,9 @@ RUN wget https://github.com/varabyte/kobweb-cli/releases/download/v${KOBWEB_CLI_
     && rm kobweb-${KOBWEB_CLI_VERSION}.zip
 
 ENV PATH="/kobweb-${KOBWEB_CLI_VERSION}/bin:${PATH}"
+
+# Set an environment variable during the build process
+ENV MONGODB_URI=$MONGODB_URI
 
 WORKDIR /project/${KOBWEB_APP_ROOT}
 
